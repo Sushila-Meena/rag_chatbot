@@ -10,7 +10,6 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     question: str
-    history: list[dict] = []   # [{"role": "user"|"assistant", "content": "..."}]
 
 
 class ChatResponse(BaseModel):
@@ -22,7 +21,7 @@ class ChatResponse(BaseModel):
 @router.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
     try:
-        reply = answer(req.question, req.history)
+        reply = answer(req.question)
         return ChatResponse(answer=reply)
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))

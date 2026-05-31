@@ -2,153 +2,347 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Docs Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --bg:        #0f0f0f;
+      --surface:   #1a1a1a;
+      --border:    #2a2a2a;
+      --accent:    #e8ff47;
+      --accent-dim:#b8cc2a;
+      --text:      #f0f0f0;
+      --muted:     #666;
+      --user-bg:   #e8ff47;
+      --user-text: #0f0f0f;
+      --bot-bg:    #1e1e1e;
+      --bot-text:  #e8e8e8;
+      --radius:    14px;
+      --font-mono: 'DM Mono', monospace;
+      --font-sans: 'DM Sans', sans-serif;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
     body {
-      font-family: system-ui, sans-serif;
-      background: #f5f5f5;
-      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding:
+        env(safe-area-inset-top)
+        env(safe-area-inset-right)
+        env(safe-area-inset-bottom)
+        env(safe-area-inset-left);
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    /* header */
+    header {
+      flex-shrink: 0;
+      padding: 1rem 1.25rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    header h1 {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* messages */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    #messages::-webkit-scrollbar       { width: 4px; }
+    #messages::-webkit-scrollbar-track { background: transparent; }
+    #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .empty-state {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1.5rem 1rem;
-      gap: 1rem;
+      justify-content: center;
+      gap: 0.6rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 2rem;
+      animation: fadeIn 0.6s ease;
     }
 
-    h1 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #111;
+    .empty-state .icon { font-size: 2rem; line-height: 1; }
+
+    .empty-state p {
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
+      line-height: 1.7;
     }
 
-    #messages {
-      width: 100%;
-      max-width: 700px;
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 0.5rem 0;
-    }
-
+    /* bubbles */
     .msg {
-      max-width: 80%;
-      padding: 0.65rem 0.9rem;
-      border-radius: 10px;
+      max-width: 82%;
+      padding: 0.7rem 1rem;
+      border-radius: var(--radius);
       font-size: 0.9rem;
-      line-height: 1.6;
+      line-height: 1.65;
       white-space: pre-wrap;
+      word-break: break-word;
+      animation: slideUp 0.22s ease;
     }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
     .msg.user {
-      background: #111;
-      color: #fff;
+      background: var(--user-bg);
+      color: var(--user-text);
       align-self: flex-end;
+      border-bottom-right-radius: 4px;
+      font-weight: 500;
     }
+
     .msg.bot {
-      background: #e8e8e8;
-      color: #111;
+      background: var(--bot-bg);
+      color: var(--bot-text);
       align-self: flex-start;
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
     }
+
     .msg.thinking {
-      color: #888;
+      color: var(--muted);
       font-style: italic;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      background: transparent;
+      border: 1px dashed var(--border);
+      padding: 0.6rem 0.9rem;
+    }
+
+    .dots::after {
+      content: '';
+      animation: dots 1.4s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+    }
+
+    /* input */
+    .input-wrap {
+      flex-shrink: 0;
+      padding: 0.85rem 1rem;
+      padding-bottom: calc(0.85rem + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border);
+      background: var(--bg);
     }
 
     .input-row {
-      width: 100%;
-      max-width: 700px;
       display: flex;
-      gap: 0.5rem;
+      gap: 0.6rem;
+      align-items: flex-end;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      padding: 0.5rem 0.5rem 0.5rem 1rem;
+      transition: border-color 0.2s;
     }
 
-    input[type="text"] {
+    .input-row:focus-within { border-color: var(--accent); }
+
+    textarea {
       flex: 1;
-      padding: 0.65rem 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      outline: none;
-    }
-    input[type="text"]:focus { border-color: #111; }
-
-    button {
-      padding: 0.65rem 1.2rem;
-      background: #111;
-      color: #fff;
+      background: transparent;
       border: none;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      cursor: pointer;
+      outline: none;
+      resize: none;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: max(16px, 0.9rem);
+      line-height: 1.5;
+      max-height: 120px;
+      min-height: 24px;
+      padding: 0.2rem 0;
     }
-    button:disabled { background: #aaa; cursor: not-allowed; }
+
+    textarea::placeholder { color: var(--muted); }
+
+    button#btn {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    button#btn:hover:not(:disabled)  { background: var(--accent-dim); }
+    button#btn:active:not(:disabled) { transform: scale(0.93); }
+    button#btn:disabled              { background: var(--border); cursor: not-allowed; }
+
+    button#btn svg          { width: 16px; height: 16px; fill: var(--user-text); }
+    button#btn:disabled svg { fill: var(--muted); }
+
+    @media (max-width: 480px) {
+      .msg      { max-width: 90%; font-size: 0.875rem; }
+      header h1 { font-size: 0.78rem; }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Docs Chat</h1>
+<div class="shell">
 
-  <div id="messages"></div>
+  <header>
+    <div class="logo-dot"></div>
+    <h1>Chat</h1>
+  </header>
 
-  <div class="input-row">
-    <input id="q" type="text" placeholder="Ask a question…"
-           onkeydown="if(event.key==='Enter') send()" />
-    <button id="btn" onclick="send()">Send</button>
+  <div id="messages">
+    <div class="empty-state" id="empty">
+      <div class="icon">💬</div>
+      <p>Ask me anything.</p>
+    </div>
   </div>
 
-  <script>
-    let history = [];
+  <div class="input-wrap">
+    <div class="input-row">
+      <textarea
+        id="q"
+        rows="1"
+        placeholder="Type a message…"
+        oninput="autoResize(this)"
+        onkeydown="handleKey(event)"
+      ></textarea>
+      <button id="btn" onclick="send()" aria-label="Send">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
 
-    async function send() {
-      const input = document.getElementById("q");
-      const question = input.value.trim();
-      if (!question) return;
+</div>
 
-      addMsg(question, "user");
-      input.value = "";
+<script>
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
 
-      const thinking = addMsg("Thinking…", "bot thinking");
-      document.getElementById("btn").disabled = true;
-
-      try {
-        const res  = await fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question, history }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "error");
-
-        thinking.textContent  = data.answer;
-        thinking.className    = "msg bot";
-
-        history.push({ role: "user",      content: question   });
-        history.push({ role: "assistant", content: data.answer });
-
-        // keep last 20 messages (10 turns)
-        if (history.length > 20) history = history.slice(-20);
-
-      } catch (e) {
-        thinking.textContent = "Error: " + e.message;
-        thinking.className   = "msg bot";
-      } finally {
-        document.getElementById("btn").disabled = false;
-        input.focus();
-      }
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      send();
     }
+  }
 
-    function addMsg(text, cls) {
-      const box = document.getElementById("messages");
-      const div = document.createElement("div");
-      div.className   = "msg " + cls;
-      div.textContent = text;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-      return div;
+  async function send() {
+    const input    = document.getElementById('q');
+    const question = input.value.trim();
+    if (!question) return;
+
+    const empty = document.getElementById('empty');
+    if (empty) empty.remove();
+
+    addMsg(question, 'user');
+    input.value        = '';
+    input.style.height = 'auto';
+
+    const thinking = addMsg('Thinking', 'bot thinking dots');
+    document.getElementById('btn').disabled = true;
+
+    try {
+      const res  = await fetch('/chat', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ question }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'error');
+
+      thinking.textContent = data.answer;
+      thinking.className   = 'msg bot';
+
+    } catch (e) {
+      thinking.textContent = '⚠ ' + e.message;
+      thinking.className   = 'msg bot';
+    } finally {
+      document.getElementById('btn').disabled = false;
+      input.focus();
     }
-  </script>
+  }
+
+  function addMsg(text, cls) {
+    const box = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className   = 'msg ' + cls;
+    div.textContent = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div;
+  }
+</script>
+
 </body>
 </html>
