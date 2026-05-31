@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docs Chat</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f5f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem;
+      gap: 1rem;
+    }
+
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #111;
+    }
+
+    #messages {
+      width: 100%;
+      max-width: 700px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+    }
+
+    .msg {
+      max-width: 80%;
+      padding: 0.65rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .msg.user {
+      background: #111;
+      color: #fff;
+      align-self: flex-end;
+    }
+    .msg.bot {
+      background: #e8e8e8;
+      color: #111;
+      align-self: flex-start;
+    }
+    .msg.thinking {
+      color: #888;
+      font-style: italic;
+    }
+
+    .input-row {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input[type="text"]:focus { border-color: #111; }
+
+    button {
+      padding: 0.65rem 1.2rem;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <h1>Docs Chat</h1>
+
+  <div id="messages"></div>
+
+  <div class="input-row">
+    <input id="q" type="text" placeholder="Ask a question…"
+           onkeydown="if(event.key==='Enter') send()" />
+    <button id="btn" onclick="send()">Send</button>
+  </div>
+
+  <script>
+    let history = [];
+
+    async function send() {
+      const input = document.getElementById("q");
+      const question = input.value.trim();
+      if (!question) return;
+
+      addMsg(question, "user");
+      input.value = "";
+
+      const thinking = addMsg("Thinking…", "bot thinking");
+      document.getElementById("btn").disabled = true;
+
+      try {
+        const res  = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question, history }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "error");
+
+        thinking.textContent  = data.answer;
+        thinking.className    = "msg bot";
+
+        history.push({ role: "user",      content: question   });
+        history.push({ role: "assistant", content: data.answer });
+
+        // keep last 20 messages (10 turns)
+        if (history.length > 20) history = history.slice(-20);
+
+      } catch (e) {
+        thinking.textContent = "Error: " + e.message;
+        thinking.className   = "msg bot";
+      } finally {
+        document.getElementById("btn").disabled = false;
+        input.focus();
+      }
+    }
+
+    function addMsg(text, cls) {
+      const box = document.getElementById("messages");
+      const div = document.createElement("div");
+      div.className   = "msg " + cls;
+      div.textContent = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+      return div;
+    }
+  </script>
+</body>
+</html>
