@@ -9,6 +9,17 @@ you drop `.md` files into a `docs/` folder. on startup, the app loads them, spli
 
 ---
 
+## Chat examples
+
+<table>
+  <tr>
+    <td><img src="imgs/ragchat1.jpg" alt="chat example1" width="100%"/></td>
+    <td><img src="imgs/ragchat2.jpg" alt="chat example2" width="100%"/></td>
+    <td><img src="imgs/ragchat3.jpg" alt="chat example3" width="100%"/></td>
+    <td><img src="imgs/ragchat4.jpg" alt="chat example4" width="100%"/></td>
+  </tr>
+</table>
+
 ## Architecture
 
 ```
