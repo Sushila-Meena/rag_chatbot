@@ -90,7 +90,7 @@ Getting each key:
 
 ```bash
 # 1. clone and install
-git clone https://github.com/aashu-0/rag_chatbot.git
+git clone https://github.com/Sushila-Meena/rag_chatbot.git
 cd rag-chatbot
 uv sync
 
