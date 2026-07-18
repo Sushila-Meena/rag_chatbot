@@ -42,4 +42,7 @@ def answer(question: str) -> str:
     context  = _build_context(docs)
     chain    = _PROMPT | _llm
     response = chain.invoke({"context": context, "question": question})
-    return response.content
+    return response.text
+    print(type(response.content))
+    print(response.content)
+    

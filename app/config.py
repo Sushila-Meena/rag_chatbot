@@ -17,7 +17,7 @@ PINECONE_NAMESPACE  = os.getenv("PINECONE_NAMESPACE", "md-rag")
 COHERE_EMBED_MODEL = "embed-english-v3.0"
 
 # --- llm ---
-GEMINI_MODEL = "gemini-2.5-flash-lite"
+GEMINI_MODEL =  "gemini-flash-latest"
 LLM_TEMPERATURE = 0
 
 # --- docs ---
