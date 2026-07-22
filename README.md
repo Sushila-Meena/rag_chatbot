@@ -1,4 +1,4 @@
-# RAGchatbot
+# RAG Chatbot
 > a retrieval-augmented generation (rag) chatbot built with fastapi, cohere embeddings, pinecone vector store, and google gemini. serves answers grounded strictly in a set of markdown documents.
 
 ---
@@ -90,8 +90,8 @@ Getting each key:
 
 ```bash
 # 1. clone and install
-git clone https://github.com/Sushila-Meena/rag_chatbot.git
-cd rag-chatbot
+git clone https://github.com/Sushila-Meena/Rag_Chatbot.git
+cd Rag_Chatbot
 uv sync
 
 # 2. set up .env
